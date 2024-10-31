@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px; /* Add some padding */
+        }
+        .title {
+            font-size: 32px; /* Increased title size */
+            margin: 20px 0;
+            color: #4a90e2;
+            text-align: center;
+        }
+        textarea, input[type="number"], input[type="text"], button {
+            width: 100%;
+            max-width: 400px; /* Increased input width */
+            padding: 15px; /* Increased padding */
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 10px; /* Rounded corners */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center; /* Center text in inputs */
+            font-size: 18px; /* Increased font size */
+        }
+        button {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #357ab8;
+        }
+        .groups {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px; /* Increased gap between groups */
+        }
+        .group {
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 150px; /* Adjust width for square appearance */
+            min-height: 120px; /* Minimum height for consistency */
+            background-color: white;
+            border-radius: 10px; /* Rounded corners */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            overflow: auto; /* Scroll if content overflows */
+            transition: height 0.2s; /* Smooth height transition */
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 class="title" id="mainTitle">Group Generator</h1>
+    <input type="text" id="titleInput" placeholder="Enter Title" />
+
+    <div id="inputContainer">
+        <textarea id="namesInput" placeholder="Enter names, one per line" rows="6"></textarea>
+        <input type="number" id="groupCount" placeholder="Number of Groups" min="1" />
+        <button onclick="generateGroups()">Generate Groups</button>
+    </div>
+
+    <div class="groups" id="groupsOutput"></div>
+
+    <script>
+        function generateGroups() {
+            const names = document.getElementById('namesInput').value.split('\n').map(name => name.trim()).filter(name => name);
+            const groupCount = parseInt(document.getElementById('groupCount').value);
+            const outputDiv = document.getElementById('groupsOutput');
+            outputDiv.innerHTML = ''; // Clear previous output
+
+            if (names.length === 0 || isNaN(groupCount) || groupCount < 1) {
+                outputDiv.innerHTML = 'Please enter valid names and group count.';
+                return;
+            }
+
+            const shuffledNames = names.sort(() => Math.random() - 0.5);
+            const groups = Array.from({ length: groupCount }, () => []);
+
+            shuffledNames.forEach((name, index) => {
+                groups[index % groupCount].push(name);
+            });
+
+            groups.forEach((group, index) => {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'group';
+                groupDiv.innerHTML = `<strong>Group ${index + 1}:</strong><br>${group.join('<br/>')}`;
+                outputDiv.appendChild(groupDiv);
+            });
+
+            adjustGroupHeights();
+        }
+
+        function adjustGroupHeights() {
+            const groupElements = document.querySelectorAll('.group');
+            let maxHeight = 0;
+
+            groupElements.forEach(group => {
+                maxHeight = Math.max(maxHeight, group.scrollHeight);
+            });
+
+            groupElements.forEach(group => {
+                group.style.height = `${maxHeight}px`;
+            });
+        }
+
+        document.getElementById('titleInput').addEventListener('input', function() {
+            document.getElementById('mainTitle').innerText = this.value || 'Group Generator';
+        });
+
+        document.addEventListener('keydown', function(event) {
+            const activeElement = document.activeElement;
+            if (event.key.toUpperCase() === 'H' && activeElement.tagName !== 'TEXTAREA' && activeElement.tagName !== 'INPUT') {
+                const inputContainer = document.getElementById('inputContainer');
+                const titleInput = document.getElementById('titleInput');
+                const isHidden = inputContainer.classList.toggle('hidden');
+                titleInput.classList.toggle('hidden', isHidden);
+            }
+        });
+    </script>
+</body>
+</html>
